@@ -44,6 +44,49 @@ Deployment:
 Version Control:
 - Git + GitHub
 
+## Database Schema
+```dbml
+Table users {
+  id integer [primary key]
+  username varchar
+  email varchar
+  password varchar
+  created_at timestamp
+}
+
+Table accounts {
+  id integer [primary key]
+  user_id integer [ref: > users.id]
+  name varchar
+  account_type varchar [note: 'checking, savings, credit']
+  starting_balance decimal
+  created_at timestamp
+}
+
+Table categories {
+  id integer [primary key]
+  user_id integer [null, note: 'null = default category']
+  name varchar
+  category_type varchar [note: 'income or expense']
+  created_at timestamp
+}
+
+Table transactions {
+  id integer [primary key]
+  account_id integer [ref: > accounts.id]
+  category_id integer [ref: > categories.id]
+  amount decimal
+  transaction_type varchar [note: 'income, expense, transfer']
+  date date
+  memo varchar
+  transfer_id integer [null, note: 'links two transfer transactions']
+  created_at timestamp
+}
+```
+## Database Schema
+![ERD Diagram](docs/erd.png)
+
+
 ## Setup & Installation
 *Instructions will be added as the project develops.*
 
