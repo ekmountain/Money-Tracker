@@ -90,6 +90,42 @@ Table transactions {
 ## Setup & Installation
 *Instructions will be added as the project develops.*
 
+## Folder Structure
+Money-Tracker/
+├── venv/
+├── money_tracker/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── urls.py
+│   ├── wsgi.py
+│   └── asgi.py
+├── core/
+│   ├── migrations/
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── tests.py
+│   └── views.py
+│   └── templates/
+│   └── static/
+│   └── tests/
+│   │   └──__init__.py
+│   │   └──test_models.py
+│   │   └──test_view.py
+│   │   └──test_forms.py
+├── docs/
+│   └── erd.png
+│   └── architecture.md
+│   └── install_instructions.md
+│   └── lessons_learned.md
+│   └── problems_encountered.md
+├── .env
+├── .gitignore
+├── manage.py
+└── requirements.txt
+
 ## Project Goals
 - Practice full-stack application development
 - Improve software architecture skills
