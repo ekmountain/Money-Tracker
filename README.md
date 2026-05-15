@@ -98,4 +98,4 @@ Table transactions {
 
 ## Status
 
-Project planning phase.
+Setup.
