@@ -16,8 +16,10 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
+# wires core paths into the main project urls. This allows us to keep our app's urls organized in core/urls.py while still making them accessible through the main URL configuration.
 urlpatterns = [
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.urls),
+    path('', include('core.urls')),
 ]
