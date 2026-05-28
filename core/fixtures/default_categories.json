@@ -1,0 +1,16 @@
+[
+    {"model": "core.category", "pk": 1, "fields": {"user": null, "name": "Salary", "category_type": "income", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 2, "fields": {"user": null, "name": "Freelance", "category_type": "income", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 3, "fields": {"user": null, "name": "Other Income", "category_type": "income", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 4, "fields": {"user": null, "name": "Groceries", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 5, "fields": {"user": null, "name": "Rent", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 6, "fields": {"user": null, "name": "Utilities", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 7, "fields": {"user": null, "name": "Transportation", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 8, "fields": {"user": null, "name": "Healthcare", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 9, "fields": {"user": null, "name": "Entertainment", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 10, "fields": {"user": null, "name": "Dining Out", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 11, "fields": {"user": null, "name": "Clothing", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 12, "fields": {"user": null, "name": "Education", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 13, "fields": {"user": null, "name": "Savings Transfer", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}},
+    {"model": "core.category", "pk": 14, "fields": {"user": null, "name": "Other Expense", "category_type": "expense", "created_at": "2026-05-28T00:00:00Z"}}
+]
