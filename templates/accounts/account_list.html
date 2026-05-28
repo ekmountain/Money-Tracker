@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Accounts - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>My Accounts</h2>
+    <a href="{% url 'account_create' %}">Add Account</a>
+
+    {% if accounts %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Balance</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for account in accounts %}
+                <tr>
+                    <td>{{ account.name }}</td>
+                    <td>{{ account.get_account_type_display }}</td>
+                    <td>${{ account.get_balance }}</td>
+                    <td>
+                        <a href="{% url 'account_edit' account.pk %}">Edit</a>
+                        <a href="{% url 'account_delete' account.pk %}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No accounts yet. <a href="{% url 'account_create' %}">Add your first account</a></p>
+    {% endif %}
+{% endblock %}

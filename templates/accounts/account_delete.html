@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Delete Account</h2>
+    <p>Are you sure you want to delete <strong>{{ account.name }}</strong>?</p>
+    <p>This will delete all transactions associated with this account.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+        <a href="{% url 'account_list' %}">Cancel</a>
+    </form>
+{% endblock %}
