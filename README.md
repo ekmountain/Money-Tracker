@@ -125,6 +125,14 @@ Money-Tracker/
 ├── .gitignore
 ├── manage.py
 └── requirements.txt
+templates/
+├── base.html
+├── dashboard.html
+└── accounts/
+    ├── account_list.html
+    ├── account_create.html
+    ├── account_edit.html
+    └── account_delete.html
 
 ## Project Goals
 - Practice full-stack application development
