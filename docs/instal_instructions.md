@@ -26,3 +26,7 @@ django-admin startproject money_tracker .
 
 python manage.py migrate
 
+
+## Create a Django Superuser
+python manage.py createsuperuser
+
