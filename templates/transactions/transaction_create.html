@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Transaction - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Add Transaction</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Transaction</button>
+        <a href="{% url 'transaction_list' %}">Cancel</a>
+    </form>
+{% endblock %}
