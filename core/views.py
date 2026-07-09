@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Account, Category, Transaction
 from .forms import AccountForm, TransactionForm, CategoryForm
+from django.shortcuts import get_object_or_404
 
 # UserCreattionForm is a built-in Django form for user registration. Adding email field 
 class RegisterForm(UserCreationForm):
@@ -56,7 +57,7 @@ def account_create(request):
 
 @login_required
 def account_edit(request, pk):
-    account = Account.objects.get(pk=pk, user=request.user)
+    account = get_object_or_404(Account, pk=pk, user=request.user)
     if request.method == 'POST':
         form = AccountForm(request.POST, instance=account)
         if form.is_valid():
@@ -70,7 +71,7 @@ def account_edit(request, pk):
 
 @login_required
 def account_delete(request, pk):
-    account = Account.objects.get(pk=pk, user=request.user)
+    account = get_object_or_404(Account, pk=pk, user=request.user)
     if request.method == 'POST':
         account.delete()
         messages.success(request, 'Account deleted successfully!')
@@ -101,7 +102,7 @@ def transaction_create(request):
 
 @login_required
 def transaction_edit(request, pk):
-    transaction = Transaction.objects.get(pk=pk, account__user=request.user)
+    transaction = get_object_or_404(Transaction, pk=pk, account__user=request.user)
     if request.method == 'POST':
         form = TransactionForm(request.user, request.POST, instance=transaction)
         if form.is_valid():
@@ -116,10 +117,63 @@ def transaction_edit(request, pk):
 
 @login_required
 def transaction_delete(request, pk):
-    transaction = Transaction.objects.get(pk=pk, account__user=request.user)
+    transaction = get_object_or_404(Transaction, pk=pk, account__user=request.user)
     if request.method == 'POST':
         transaction.delete()
         messages.success(request, 'Transaction deleted successfully!')
         return redirect('transaction_list')
     return render(request, 'transactions/transaction_delete.html', 
         {'transaction': transaction})
+
+# category_list separates default and custom categories so they can be displayed separately in the template
+@login_required
+def category_list(request):
+    default_categories = Category.objects.filter(user=None)
+    custom_categories = Category.objects.filter(user=request.user)
+    return render(request, 'categories/category_list.html', {
+        'default_categories': default_categories,
+        'custom_categories': custom_categories
+    })
+
+
+@login_required
+def category_create(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.user = request.user
+            category.save()
+            messages.success(request, 'Category created successfully!')
+            return redirect('category_list')
+    else:
+        form = CategoryForm()
+    return render(request, 'categories/category_create.html', {'form': form})
+
+
+#category_edit and category_delete filter by user=request.user so users can only edit or delete their own custom categories, not the defaults
+@login_required
+def category_edit(request, pk):
+    category = get_object_or_404(Category, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Category updated successfully!')
+            return redirect('category_list')
+    else:
+        form = CategoryForm(instance=category)
+    return render(request, 'categories/category_edit.html', {
+        'form': form,
+        'category': category
+    })
+
+
+@login_required
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk, user=request.user)
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'Category deleted successfully!')
+        return redirect('category_list')
+    return render(request, 'categories/category_delete.html', {'category': category})
