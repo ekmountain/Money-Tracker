@@ -185,3 +185,69 @@ class TransactionViewTests(TestCase):
             date=datetime.date.today()
         )
         self.assertEqual(self.account.get_balance(), Decimal('800.00'))
+
+#category tests
+class CategoryViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser4',
+            password='testpass123'
+        )
+        self.client.login(username='testuser4', password='testpass123')
+        self.default_category = Category.objects.create(
+            name='Default Category',
+            category_type='expense'
+        )
+        self.custom_category = Category.objects.create(
+            user=self.user,
+            name='Custom Category',
+            category_type='expense'
+        )
+
+    def test_category_list_loads(self):
+        response = self.client.get(reverse('category_list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_category_list_redirects_when_logged_out(self):
+        self.client.logout()
+        response = self.client.get(reverse('category_list'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_category_create(self):
+        response = self.client.post(reverse('category_create'), {
+            'name': 'New Category',
+            'category_type': 'income'
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Category.objects.filter(name='New Category').exists())
+
+    def test_category_edit(self):
+        response = self.client.post(
+            reverse('category_edit', args=[self.custom_category.pk]), {
+                'name': 'Updated Category',
+                'category_type': 'expense'
+            })
+        self.assertEqual(response.status_code, 302)
+        self.custom_category.refresh_from_db()
+        self.assertEqual(self.custom_category.name, 'Updated Category')
+
+    def test_category_delete(self):
+        response = self.client.post(
+            reverse('category_delete', args=[self.custom_category.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Category.objects.filter(
+            pk=self.custom_category.pk).exists())
+
+    def test_cannot_edit_default_category(self):
+        response = self.client.post(
+            reverse('category_edit', args=[self.default_category.pk]), {
+                'name': 'Hacked Category',
+                'category_type': 'expense'
+            })
+        self.assertEqual(response.status_code, 404)
+
+    def test_cannot_delete_default_category(self):
+        response = self.client.post(
+            reverse('category_delete', args=[self.default_category.pk]))
+        self.assertEqual(response.status_code, 404)
