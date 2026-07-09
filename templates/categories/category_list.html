@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Categories - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Categories</h2>
+    <a href="{% url 'category_create' %}">Add Custom Category</a>
+
+    <h3>Default Categories</h3>
+    {% if default_categories %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in default_categories %}
+                <tr>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.get_category_type_display }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No default categories found.</p>
+    {% endif %}
+
+    <h3>Custom Categories</h3>
+    {% if custom_categories %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in custom_categories %}
+                <tr>
+                    <td>{{ category.name }}</td>
+                    <td>{{ category.get_category_type_display }}</td>
+                    <td>
+                        <a href="{% url 'category_edit' category.pk %}">Edit</a>
+                        <a href="{% url 'category_delete' category.pk %}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No custom categories yet. <a href="{% url 'category_create' %}">Add one</a></p>
+    {% endif %}
+{% endblock %}
