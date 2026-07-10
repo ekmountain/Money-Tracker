@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Budget - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Edit Budget - {{ budget.category.name }}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Update Budget</button>
+        <a href="{% url 'budget_list' %}">Cancel</a>
+    </form>
+{% endblock %}

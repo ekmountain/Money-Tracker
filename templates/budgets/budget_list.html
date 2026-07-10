@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Budgets - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Budgets</h2>
+    <a href="{% url 'budget_create' %}">Add Budget</a>
+
+    {% if budgets %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Month/Year</th>
+                    <th>Budget</th>
+                    <th>Spent</th>
+                    <th>Remaining</th>
+                    <th>Progress</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for budget in budgets %}
+                <tr>
+                    <td>{{ budget.category.name }}</td>
+                    <td>{{ budget.month }}/{{ budget.year }}</td>
+                    <td>${{ budget.amount }}</td>
+                    <td>${{ budget.get_spent }}</td>
+                    <td>${{ budget.get_remaining }}</td>
+                    <td>
+                        <progress value="{{ budget.get_percentage }}" max="100"></progress>
+                        {{ budget.get_percentage }}%
+                    </td>
+                    <td>
+                        <a href="{% url 'budget_edit' budget.pk %}">Edit</a>
+                        <a href="{% url 'budget_delete' budget.pk %}">Delete</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No budgets yet. <a href="{% url 'budget_create' %}">Add your first budget</a></p>
+    {% endif %}
+{% endblock %}

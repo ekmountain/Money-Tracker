@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Account, Category, Transaction
 from .forms import AccountForm, TransactionForm, CategoryForm
 from django.shortcuts import get_object_or_404
+from .models import Account, Category, Transaction, Budget
+from .forms import AccountForm, TransactionForm, CategoryForm, BudgetForm
 
 # UserCreattionForm is a built-in Django form for user registration. Adding email field 
 class RegisterForm(UserCreationForm):
@@ -177,3 +179,50 @@ def category_delete(request, pk):
         messages.success(request, 'Category deleted successfully!')
         return redirect('category_list')
     return render(request, 'categories/category_delete.html', {'category': category})
+
+@login_required
+def budget_list(request):
+    budgets = Budget.objects.filter(user=request.user).select_related('category')
+    return render(request, 'budgets/budget_list.html', {'budgets': budgets})
+
+
+@login_required
+def budget_create(request):
+    if request.method == 'POST':
+        form = BudgetForm(request.user, request.POST)
+        if form.is_valid():
+            budget = form.save(commit=False)
+            budget.user = request.user
+            budget.save()
+            messages.success(request, 'Budget created successfully!')
+            return redirect('budget_list')
+    else:
+        form = BudgetForm(user=request.user)
+    return render(request, 'budgets/budget_create.html', {'form': form})
+
+
+@login_required
+def budget_edit(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = BudgetForm(request.user, request.POST, instance=budget)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Budget updated successfully!')
+            return redirect('budget_list')
+    else:
+        form = BudgetForm(user=request.user, instance=budget)
+    return render(request, 'budgets/budget_edit.html', {
+        'form': form,
+        'budget': budget
+    })
+
+
+@login_required
+def budget_delete(request, pk):
+    budget = get_object_or_404(Budget, pk=pk, user=request.user)
+    if request.method == 'POST':
+        budget.delete()
+        messages.success(request, 'Budget deleted successfully!')
+        return redirect('budget_list')
+    return render(request, 'budgets/budget_delete.html', {'budget': budget})

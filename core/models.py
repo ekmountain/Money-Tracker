@@ -74,3 +74,42 @@ class Transaction(models.Model):
 
     class Meta:
         ordering = ['-date']
+
+class Budget(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    month = models.IntegerField()
+    year = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.category.name} - {self.month}/{self.year} (${self.amount})"
+
+    # get_spent()calculates how much has been spent in that category for that month dynamically
+    def get_spent(self):
+        from django.db.models import Sum
+        spent = Transaction.objects.filter(
+            account__user=self.user,
+            category=self.category,
+            transaction_type='expense',
+            date__month=self.month,
+            date__year=self.year
+        ).aggregate(total=Sum('amount'))['total'] or 0
+        return spent
+    
+    # get_remaining() shows how much budget is left
+    def get_remaining(self):
+        return self.amount - self.get_spent()
+
+    # get_percentage() returns a 0-100 value useful for progress bars in the template
+    # min(..., 100) caps at 100% even if overspent
+    def get_percentage(self):
+        if self.amount == 0:
+            return 0
+        return min(int((self.get_spent() / self.amount) * 100), 100)
+
+    class Meta:
+        ordering = ['year', 'month']
+        # unique_together prevents duplicate budgets for the same category and month        
+        unique_together = ['user', 'category', 'month', 'year']

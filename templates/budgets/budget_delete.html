@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Budget - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Delete Budget</h2>
+    <p>Are you sure you want to delete the budget for <strong>{{ budget.category.name }}</strong> ({{ budget.month }}/{{ budget.year }})?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Yes, Delete</button>
+        <a href="{% url 'budget_list' %}">Cancel</a>
+    </form>
+{% endblock %}

@@ -22,4 +22,8 @@ urlpatterns = [
     path('categories/create/', views.category_create, name='category_create'),
     path('categories/<int:pk>/edit/', views.category_edit, name='category_edit'),
     path('categories/<int:pk>/delete/', views.category_delete, name='category_delete'),
+    path('budgets/', views.budget_list, name='budget_list'),
+    path('budgets/create/', views.budget_create, name='budget_create'),
+    path('budgets/<int:pk>/edit/', views.budget_edit, name='budget_edit'),
+    path('budgets/<int:pk>/delete/', views.budget_delete, name='budget_delete'),
 ]

@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from core.models import Account, Category, Transaction, Budget
 
 # These tests cover the core views of the application, including authentication, account management, and transaction management. Each test checks that the appropriate status codes are returned and that the expected changes occur in the database when creating, editing, or deleting accounts and transactions. Additional tests can be added to cover edge cases and other functionality as needed.
 class AuthTests(TestCase):
@@ -251,3 +252,84 @@ class CategoryViewTests(TestCase):
         response = self.client.post(
             reverse('category_delete', args=[self.default_category.pk]))
         self.assertEqual(response.status_code, 404)
+
+class BudgetViewTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser5',
+            password='testpass123'
+        )
+        self.client.login(username='testuser5', password='testpass123')
+        self.category = Category.objects.create(
+            name='Test Expense',
+            category_type='expense'
+        )
+        self.budget = Budget.objects.create(
+            user=self.user,
+            category=self.category,
+            amount=Decimal('500.00'),
+            month=7,
+            year=2026
+        )
+
+    def test_budget_list_loads(self):
+        response = self.client.get(reverse('budget_list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_budget_list_redirects_when_logged_out(self):
+        self.client.logout()
+        response = self.client.get(reverse('budget_list'))
+        self.assertEqual(response.status_code, 302)
+
+    def test_budget_create(self):
+        new_category = Category.objects.create(
+            name='New Expense Category',
+            category_type='expense'
+        )
+        response = self.client.post(reverse('budget_create'), {
+            'category': new_category.pk,
+            'amount': '300.00',
+            'month': 7,
+            'year': 2026
+        })
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(Budget.objects.filter(
+            category=new_category).exists())
+
+    def test_budget_edit(self):
+        response = self.client.post(
+            reverse('budget_edit', args=[self.budget.pk]), {
+                'category': self.category.pk,
+                'amount': '750.00',
+                'month': 7,
+                'year': 2026
+            })
+        self.assertEqual(response.status_code, 302)
+        self.budget.refresh_from_db()
+        self.assertEqual(self.budget.amount, Decimal('750.00'))
+
+    def test_budget_delete(self):
+        response = self.client.post(
+            reverse('budget_delete', args=[self.budget.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Budget.objects.filter(
+            pk=self.budget.pk).exists())
+
+    def test_budget_spent_calculation(self):
+        account = Account.objects.create(
+            user=self.user,
+            name='Test Account',
+            account_type='checking',
+            starting_balance=Decimal('1000.00')
+        )
+        Transaction.objects.create(
+            account=account,
+            category=self.category,
+            amount=Decimal('100.00'),
+            transaction_type='expense',
+            date=datetime.date(2026, 7, 1)
+        )
+        self.assertEqual(self.budget.get_spent(), Decimal('100.00'))
+        self.assertEqual(self.budget.get_remaining(), Decimal('400.00'))
+        self.assertEqual(self.budget.get_percentage(), 20)
