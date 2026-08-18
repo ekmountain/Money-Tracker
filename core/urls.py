@@ -26,4 +26,8 @@ urlpatterns = [
     path('budgets/create/', views.budget_create, name='budget_create'),
     path('budgets/<int:pk>/edit/', views.budget_edit, name='budget_edit'),
     path('budgets/<int:pk>/delete/', views.budget_delete, name='budget_delete'),
+    path('reconciliation/', views.reconciliation_list, name='reconciliation_list'),
+    path('reconciliation/start/', views.reconciliation_start, name='reconciliation_start'),
+    path('reconciliation/<int:pk>/workspace/', views.reconciliation_workspace, name='reconciliation_workspace'),
+    path('reconciliation/<int:pk>/finish/', views.reconciliation_finish, name='reconciliation_finish'),
 ]

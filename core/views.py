@@ -8,8 +8,9 @@ from django.contrib.auth.decorators import login_required
 from .models import Account, Category, Transaction
 from .forms import AccountForm, TransactionForm, CategoryForm
 from django.shortcuts import get_object_or_404
-from .models import Account, Category, Transaction, Budget
 from .forms import AccountForm, TransactionForm, CategoryForm, BudgetForm
+from django.utils import timezone
+from .models import Account, Category, Transaction, Budget, Reconciliation
 
 # UserCreattionForm is a built-in Django form for user registration. Adding email field 
 class RegisterForm(UserCreationForm):
@@ -226,3 +227,81 @@ def budget_delete(request, pk):
         messages.success(request, 'Budget deleted successfully!')
         return redirect('budget_list')
     return render(request, 'budgets/budget_delete.html', {'budget': budget})
+
+@login_required
+def reconciliation_start(request):
+    if request.method == 'POST':
+        account_id = request.POST.get('account')
+        opening_balance = request.POST.get('opening_balance')
+        closing_balance = request.POST.get('closing_balance')
+        account = get_object_or_404(Account, pk=account_id, user=request.user)
+        reconciliation = Reconciliation.objects.create(
+            account=account,
+            opening_balance=opening_balance,
+            closing_balance=closing_balance,
+        )
+        return redirect('reconciliation_workspace', pk=reconciliation.pk)
+    accounts = Account.objects.filter(user=request.user)
+    return render(request, 'reconciliation/reconciliation_start.html', 
+        {'accounts': accounts})
+
+
+@login_required
+def reconciliation_workspace(request, pk):
+    reconciliation = get_object_or_404(
+        Reconciliation, pk=pk, account__user=request.user)
+    
+    if request.method == 'POST':
+        transaction_ids = request.POST.getlist('transactions')
+        Transaction.objects.filter(
+            account=reconciliation.account,
+            status='cleared'
+        ).exclude(pk__in=transaction_ids).update(status='uncleared')
+        Transaction.objects.filter(
+            pk__in=transaction_ids
+        ).update(status='cleared')
+        return redirect('reconciliation_workspace', pk=pk)
+
+    transactions = Transaction.objects.filter(
+        account=reconciliation.account,
+        status__in=['uncleared', 'cleared']
+    ).order_by('date')
+
+    return render(request, 'reconciliation/reconciliation_workspace.html', {
+        'reconciliation': reconciliation,
+        'transactions': transactions,
+    })
+
+
+@login_required
+def reconciliation_finish(request, pk):
+    reconciliation = get_object_or_404(
+        Reconciliation, pk=pk, account__user=request.user)
+    
+    if not reconciliation.is_balanced():
+        messages.error(request, 
+            f'Account is not balanced. Cleared balance is \
+            ${reconciliation.get_cleared_balance()}, \
+            closing balance is ${reconciliation.closing_balance}.')
+        return redirect('reconciliation_workspace', pk=pk)
+    
+    Transaction.objects.filter(
+        account=reconciliation.account,
+        status='cleared'
+    ).update(status='reconciled')
+    
+    reconciliation.status = 'completed'
+    reconciliation.completed_at = timezone.now()
+    reconciliation.save()
+    
+    messages.success(request, 'Reconciliation completed successfully!')
+    return redirect('account_list')
+
+
+@login_required
+def reconciliation_list(request):
+    reconciliations = Reconciliation.objects.filter(
+        account__user=request.user
+    ).select_related('account')
+    return render(request, 'reconciliation/reconciliation_list.html',
+        {'reconciliations': reconciliations})

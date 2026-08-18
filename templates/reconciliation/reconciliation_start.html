@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Start Reconciliation - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Start Reconciliation</h2>
+    <p>Enter the opening and closing balances from your bank statement.</p>
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label for="account">Account</label>
+            <select name="account" id="account" required>
+                {% for account in accounts %}
+                    <option value="{{ account.pk }}">{{ account.name }}</option>
+                {% endfor %}
+            </select>
+        </p>
+        <p>
+            <label for="opening_balance">Opening Balance</label>
+            <input type="number" name="opening_balance" id="opening_balance" 
+                step="0.01" placeholder="0.00" required>
+        </p>
+        <p>
+            <label for="closing_balance">Closing Balance</label>
+            <input type="number" name="closing_balance" id="closing_balance" 
+                step="0.01" placeholder="0.00" required>
+        </p>
+        <button type="submit">Start Reconciliation</button>
+        <a href="{% url 'reconciliation_list' %}">Cancel</a>
+    </form>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Reconciliations - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Reconciliations</h2>
+    <a href="{% url 'reconciliation_start' %}">Start New Reconciliation</a>
+
+    {% if reconciliations %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Account</th>
+                    <th>Opening Balance</th>
+                    <th>Closing Balance</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reconciliation in reconciliations %}
+                <tr>
+                    <td>{{ reconciliation.account.name }}</td>
+                    <td>${{ reconciliation.opening_balance }}</td>
+                    <td>${{ reconciliation.closing_balance }}</td>
+                    <td>{{ reconciliation.get_status_display }}</td>
+                    <td>{{ reconciliation.created_at|date:"M d, Y" }}</td>
+                    <td>
+                        {% if reconciliation.status == 'in_progress' %}
+                            <a href="{% url 'reconciliation_workspace' reconciliation.pk %}">Continue</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No reconciliations yet. <a href="{% url 'reconciliation_start' %}">Start one</a></p>
+    {% endif %}
+{% endblock %}

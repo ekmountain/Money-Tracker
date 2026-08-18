@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Reconciliation Workspace - Money Tracker{% endblock %}
+
+{% block content %}
+    <h2>Reconciling {{ reconciliation.account.name }}</h2>
+
+    <div>
+        <p>Opening Balance: ${{ reconciliation.opening_balance }}</p>
+        <p>Closing Balance: ${{ reconciliation.closing_balance }}</p>
+        <p>Cleared Balance: ${{ reconciliation.get_cleared_balance }}</p>
+        <p>Difference: ${{ reconciliation.closing_balance|floatformat:2 }}</p>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Cleared</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Category</th>
+                    <th>Amount</th>
+                    <th>Memo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="transactions" 
+                            value="{{ transaction.pk }}"
+                            {% if transaction.status == 'cleared' %}checked{% endif %}>
+                    </td>
+                    <td>{{ transaction.date }}</td>
+                    <td>{{ transaction.get_transaction_type_display }}</td>
+                    <td>{{ transaction.category.name|default:"No Category" }}</td>
+                    <td>${{ transaction.amount }}</td>
+                    <td>{{ transaction.memo|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">Update Cleared Transactions</button>
+        <a href="{% url 'reconciliation_finish' reconciliation.pk %}">Finish Reconciliation</a>
+        <a href="{% url 'reconciliation_list' %}">Cancel</a>
+    </form>
+{% endblock %}
